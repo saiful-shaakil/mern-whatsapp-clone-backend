@@ -7,4 +7,4 @@ const whatsAppMessagesSchema = mongoose.Schema({
   received: Boolean,
 });
 
-export default mongoose.model("messageContent", whatsAppMessagesSchema);
+export default mongoose.model("messagecontents", whatsAppMessagesSchema);
