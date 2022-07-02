@@ -3,6 +3,7 @@ import "dotenv/config";
 import cors from "cors";
 import mongoose from "mongoose";
 import Messages from "./MessagesDb.js";
+import Contacts from "./ContactDB.js";
 import Pusher from "pusher";
 const app = express();
 const port = process.env.PORT || 5000;
@@ -19,6 +20,11 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
+// app.use((req, res, next) => {
+//   res.setHeader("Acess-Control-Allow-Origin", "*");
+//   res.setHeader("Acess-Control-Allow-Headers", "*");
+//   next();
+// });
 //db config
 
 const uri = `mongodb+srv://whatsapp:${process.env.DB_PASS}@cluster0.98qmy.mongodb.net/?retryWrites=true&w=majority`;
@@ -46,10 +52,16 @@ db.once("open", () => {
   });
 });
 
+// const getNanoSec = () => {
+//   var hrTime = process.hrtime();
+//   return hrTime[0] * 1000000000 + hrTime[1];
+// };
+// console.log(getNanoSec());
+
 app.get("/", (req, res) => {
   res.send("Whatsapp-mern backend running");
 });
-
+//messagesDB.js
 app.post("/insert-messages", (req, res) => {
   const message = req.body;
 
@@ -63,6 +75,28 @@ app.post("/insert-messages", (req, res) => {
 });
 app.get("/get-messages", (req, res) => {
   Messages.find((err, data) => {
+    if (err) {
+      res.status(500).send(err);
+    } else {
+      res.status(200).send(data);
+    }
+  });
+});
+//contactDB.js
+//to post contacts
+app.post("/insert-contact", (req, res) => {
+  const contact = req.body;
+  Contacts.create(contact, (err, data) => {
+    if (err) {
+      res.status(500).send(err);
+    } else {
+      res.status(201).send(data);
+    }
+  });
+});
+//to get contacts
+app.get("/get-contacts", (req, res) => {
+  Contacts.find((err, data) => {
     if (err) {
       res.status(500).send(err);
     } else {
