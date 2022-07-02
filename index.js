@@ -87,8 +87,9 @@ app.post("/insert-messages", (req, res) => {
     }
   });
 });
-app.get("/get-messages", (req, res) => {
-  Messages.find((err, data) => {
+app.get("/get-messages/:contactId", (req, res) => {
+  const contactId = req.params.contactId;
+  Messages.find({ messengerId: contactId }, (err, data) => {
     if (err) {
       res.status(500).send(err);
     } else {
@@ -108,10 +109,21 @@ app.post("/insert-contact", (req, res) => {
     }
   });
 });
-//to get contacts
+//to get contacts by email
 app.get("/get-contacts/:email", (req, res) => {
   const email = req.params.email;
   Contacts.find({ by: email }, (err, data) => {
+    if (err) {
+      res.status(500).send(err);
+    } else {
+      res.status(200).send(data);
+    }
+  });
+});
+//to get a single contact for chat container
+app.get("/contacts/:id", (req, res) => {
+  const contactId = req.params.id;
+  Contacts.find({ _id: contactId }, (err, data) => {
     if (err) {
       res.status(500).send(err);
     } else {
