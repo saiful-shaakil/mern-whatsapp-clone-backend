@@ -37,9 +37,12 @@ const db = mongoose.connection;
 db.once("open", () => {
   console.log("Db is connected");
   const msgCollection = db.collection("messagecontents");
+  const contactCollection = db.collection("contacts");
   const changeStream = msgCollection.watch();
+  const changeStremTwo = contactCollection.watch();
+  //for message
   changeStream.on("change", (change) => {
-    console.log("A change happended", change);
+    console.log("A change happended in messages", change);
     if (change.operationType === "insert") {
       const messageData = change.fullDocument;
       pusher.trigger("messages", "inserted", {
@@ -48,6 +51,17 @@ db.once("open", () => {
       });
     } else {
       console.log("Error is happend");
+    }
+  });
+  //for contact
+  changeStremTwo.on("change", (change) => {
+    console.log("A change happended in contacts", change);
+    if (change.operationType === "insert") {
+      const contactData = change.fullDocument;
+      pusher.trigger("contacts", "inserted", {
+        name: contactData.name,
+        img: contactData.img,
+      });
     }
   });
 });
@@ -95,8 +109,9 @@ app.post("/insert-contact", (req, res) => {
   });
 });
 //to get contacts
-app.get("/get-contacts", (req, res) => {
-  Contacts.find((err, data) => {
+app.get("/get-contacts/:email", (req, res) => {
+  const email = req.params.email;
+  Contacts.find({ by: email }, (err, data) => {
     if (err) {
       res.status(500).send(err);
     } else {
